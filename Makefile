@@ -1,23 +1,51 @@
-CC := clang
-LD := lld
+CC := gcc
+LD := ld
+OBJCOPY := objcopy
 
-CFLAGS := -ffreestanding -MMD -mno-red-zone -std=c11 \
-	-I/usr/include/efi -I/usr/include/efi/x86_64 \
-	-target x86_64-unknown-windows
-LDFLAGS := -flavor link -subsystem:efi_application -entry:efi_main
+LIB_DIR := /usr/lib
 
-SRCS := main.c main2.c
+SRC := main.c
+OBJ := main.o
+SO := main.so
+EFI := bootx64.efi
 
-default: all
+CFLAGS := -c \
+          -fno-stack-protector \
+          -fpic \
+          -fshort-wchar \
+          -mno-red-zone \
+          -DEFI_FUNCTION_WRAPPER
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+LDFLAGS := $(LIB_DIR)/crt0-efi-x86_64.o \
+           -nostdlib \
+           -znocombreloc \
+           -T $(LIB_DIR)/elf_x86_64_efi.lds \
+           -shared \
+           -Bsymbolic \
+           -L $(LIB_DIR) \
+           -lgnuefi -lefi
 
-bootx64.efi: main.o
-	$(LD) $(LDFLAGS) $< -out:$@
+OBJCOPY_FLAGS := -j .text \
+                 -j .sdata \
+                 -j .data \
+                 -j .rodata \
+                 -j .dynamic \
+                 -j .dynsym \
+                 -j .rel \
+                 -j .rela \
+                 -j .reloc \
+                 --target=efi-app-x86_64
 
--include $(SRCS:.c=.d)
+all: $(EFI)
 
-.PHONY: clean all default
+$(OBJ): $(SRC)
+	$(CC) $(CFLAGS) -o $@ $<
 
-all: bootx64.efi
+$(SO): $(OBJ)
+	$(LD) $(OBJ) $(LDFLAGS) -o $@
+
+$(EFI): $(SO)
+	$(OBJCOPY) $(OBJCOPY_FLAGS) $< $@
+
+clean:
+	rm -f $(OBJ) $(SO) $(EFI)

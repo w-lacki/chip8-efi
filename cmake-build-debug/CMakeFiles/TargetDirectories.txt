@@ -1,3 +1,0 @@
-/home/anon/dev/uczelnia/os/chip8-efi/cmake-build-debug/CMakeFiles/chip8_efi.dir
-/home/anon/dev/uczelnia/os/chip8-efi/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/anon/dev/uczelnia/os/chip8-efi/cmake-build-debug/CMakeFiles/rebuild_cache.dir
