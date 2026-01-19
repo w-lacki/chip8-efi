@@ -18,3 +18,5 @@ CHIP-8 is a simple interpreted programming language originally developed in the 
 - Includes a test script for quick validation
 
 - Uses standard CHIP-8 input/output conventions
+
+![Space invaders ROM](img/chip8.png)
